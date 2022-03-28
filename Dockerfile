@@ -4,10 +4,12 @@ COPY ["main.go", "go.mod", "go.sum", "./"]
 
 RUN go mod tidy
 RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o /bin/distroless-helper
-RUN apt update; apt install --no-install-recommends -y upx
+
+FROM ghcr.io/ahmetozer/containers/upx as upx
+COPY --from=build /bin/distroless-helper /bin/distroless-helper
 RUN upx --brute /bin/distroless-helper
 
 FROM scratch
-COPY --from=build /bin/distroless-helper /bin/distroless-helper
+COPY --from=upx /bin/distroless-helper /bin/distroless-helper
 LABEL org.opencontainers.image.source="https://github.com/ahmetozer/distroless-helper"
 ENTRYPOINT ["/bin/distroless-helper"]

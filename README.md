@@ -5,20 +5,20 @@ Copy binary and libraries to the target folder.
 Example usage
 
 ```Dockerfile
-FROM debian
+FROM debian as base
 COPY --from=ghcr.io/ahmetozer/distroless-helper /bin/distroless-helper /bin/distroless-helper
-RUN distroless-helper /usr/sbin/nginx /target
+RUN distroless-helper /usr/sbin/nginx /opt
 
-RUN cp -a --parents /etc/nginx /target/ && \
- cp -a --parents /var/lib/nginx/logs/ /target/ && \
- cp -a --parents /etc/passwd /target/ && \
- cp -a --parents /etc/group /target/ && \
- cp -a --parents /var/lib/nginx/tmp/ /target/ && \
- cp -a --parents /var/log/nginx/ /target/ &&\
- cp -a --parents /run/nginx/ /target/
+RUN cp -a --parents /etc/nginx /opt/ && \
+ cp -a --parents /var/lib/nginx/logs/ /opt/ && \
+ cp -a --parents /etc/passwd /opt/ && \
+ cp -a --parents /etc/group /opt/ && \
+ cp -a --parents /var/lib/nginx/tmp/ /opt/ && \
+ cp -a --parents /var/log/nginx/ /opt/ &&\
+ cp -a --parents /run/nginx/ /opt/
 
 FROM scratch
-COPY --from=builder /target/ /
+COPY --from=base /opt/ /
 ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]
 ```
 
